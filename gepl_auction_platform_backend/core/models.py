@@ -1,0 +1,60 @@
+from django.db import models
+from pygments.lexers import get_all_lexers
+from pygments.styles import get_all_styles
+
+from gepl_auction_platform_backend.users.models import User
+
+LEXERS = [item for item in get_all_lexers() if item[1]]
+LANGUAGE_CHOICES = sorted([(item[1][0], item[0]) for item in LEXERS])
+STYLE_CHOICES = sorted([(item, item) for item in get_all_styles()])
+
+# Create your models here.
+
+
+class Teams(models.Model):
+    id = models.AutoField(primary_key=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    name = models.CharField(max_length=255)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    budget = models.IntegerField(default=500000000)
+
+    class Meta:
+        ordering = ["name"]
+        get_latest_by = "created_at"
+
+    def __str__(self):
+        return f"{self.id}"
+
+
+class Players(models.Model):
+    id = models.AutoField(primary_key=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    name = models.CharField(max_length=255)
+    role = models.CharField(
+        choices=[
+            ("BATSMAN", "BATSMAN"),
+            ("BOWLER", "BOWLER"),
+            ("ALL_ROUNDER", "ALL_ROUNDER"),
+            ("WICKET_KEEPER", "WICKET_KEEPER"),
+        ],
+        max_length=255,
+    )
+    category = models.CharField(
+        choices=[
+            ("CATEGORY_A", "CATEGORY_A"),
+            ("CATEGORY_B", "CATEGORY_B"),
+            ("CATEGORY_C", "CATEGORY_C"),
+        ],
+        default="CATEGORY_A",
+        max_length=255,
+    )
+    base_price = models.IntegerField(default=0)
+    stats = models.JSONField(default=dict)
+    shadow_base_price = models.IntegerField(default=0)
+
+    class Meta:
+        ordering = ["name"]
+        get_latest_by = "created_at"
+
+    def __str__(self):
+        return f"{self.id}"
