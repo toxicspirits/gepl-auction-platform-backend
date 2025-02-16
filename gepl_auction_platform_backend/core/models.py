@@ -49,7 +49,6 @@ class Players(models.Model):
         max_length=255,
     )
     base_price = models.IntegerField(default=0)
-    stats = models.JSONField(default=dict)
     shadow_base_price = models.IntegerField(default=0)
 
     class Meta:
@@ -58,3 +57,20 @@ class Players(models.Model):
 
     def __str__(self):
         return f"{self.id}"
+
+
+class PlayerStats(models.Model):
+    player = models.OneToOneField(Players, primary_key=True, on_delete=models.CASCADE)
+    qualifier_wickets = models.IntegerField(default=0)
+    qualifier_runs = models.IntegerField(default=0)
+    qualifier_matches = models.IntegerField(default=0)
+
+    season_one_wickets = models.IntegerField(default=0)
+    season_one_runs = models.IntegerField(default=0)
+    season_one_matches = models.IntegerField(default=0)
+
+    class Meta:
+        ordering = ["player"]
+
+    def __str__(self):
+        return f"{self.player}"

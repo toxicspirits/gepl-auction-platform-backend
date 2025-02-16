@@ -1,16 +1,48 @@
 from rest_framework import serializers
 
 from gepl_auction_platform_backend.core.models import Players
+from gepl_auction_platform_backend.core.models import PlayerStats
 from gepl_auction_platform_backend.core.models import Teams
 
 
 class PlayerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Players
-        fields = ["id", "name", "role", "base_price", "stats", "shadow_base_price"]
+        fields = ["id", "name", "role", "base_price", "shadow_base_price"]
 
 
 class TeamSerializer(serializers.ModelSerializer):
     class Meta:
         model = Teams
         fields = ["id", "name", "owner", "budget"]
+
+
+class PlayerStatsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PlayerStats
+        fields = [
+            "player",
+            "qualifier_wickets",
+            "qualifier_matches",
+            "qualifier_runs",
+            "season_one_runs",
+            "season_one_matches",
+            "season_one_wickets",
+        ]
+
+
+class GetPlayerStatsSerializer(serializers.ModelSerializer):
+    player_details = PlayerSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = PlayerStats
+        fields = [
+            "player",
+            "qualifier_wickets",
+            "qualifier_matches",
+            "qualifier_runs",
+            "season_one_runs",
+            "season_one_matches",
+            "season_one_wickets",
+            "player_details",
+        ]
