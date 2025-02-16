@@ -10,7 +10,6 @@ from rest_framework.views import APIView
 from gepl_auction_platform_backend.core.models import Players
 from gepl_auction_platform_backend.core.models import PlayerStats
 from gepl_auction_platform_backend.core.models import Teams
-from gepl_auction_platform_backend.core.serializers import GetPlayerStatsSerializer
 from gepl_auction_platform_backend.core.serializers import PlayerSerializer
 from gepl_auction_platform_backend.core.serializers import PlayerStatsSerializer
 from gepl_auction_platform_backend.core.serializers import TeamSerializer
@@ -98,9 +97,8 @@ class PlayerStatsDetail(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, f_format=None, pk=None):
-        stats_data = PlayerStats.objects.get(player=pk)
-        serializer = GetPlayerStatsSerializer(stats_data)
-        return JsonResponse(serializer.data, safe=False)
+        stats_data = PlayerStats.objects.filter(player=pk).values()
+        return JsonResponse(list(stats_data), safe=False)
 
     def post(self, request, f_format=None, pk=None):
         request_data = request.data
