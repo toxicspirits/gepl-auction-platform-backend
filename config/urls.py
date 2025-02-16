@@ -59,6 +59,7 @@ urlpatterns += [
     path("api/players/<int:pk>/", views.PlayerDetail.as_view()),
     re_path(r"^api/category/?$", views.CategoryPlayers.as_view()),
     path(r"api/player/<int:pk>/stats/", views.PlayerStatsDetail.as_view()),
+    re_path(r"^api/frontend/assets/?$", views.FrontEndAsset.as_view()),
     # path("ws/chat/", bidding.ChatConsumer.as_asgi()),
     path("bidding_room/", include("gepl_auction_platform_backend.bidding_room.urls")),
 ]

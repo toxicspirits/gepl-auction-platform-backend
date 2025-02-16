@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from gepl_auction_platform_backend.core.models import FrontEndAssets
 from gepl_auction_platform_backend.core.models import Players
 from gepl_auction_platform_backend.core.models import PlayerStats
 from gepl_auction_platform_backend.core.models import Teams
@@ -46,3 +47,9 @@ class GetPlayerStatsSerializer(serializers.ModelSerializer):
             "season_one_wickets",
             "player_details",
         ]
+
+
+class FrontEndAssetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FrontEndAssets
+        fields = ["id", "asset_name", "asset_url"]

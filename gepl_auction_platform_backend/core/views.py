@@ -7,9 +7,11 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 
+from gepl_auction_platform_backend.core.models import FrontEndAssets
 from gepl_auction_platform_backend.core.models import Players
 from gepl_auction_platform_backend.core.models import PlayerStats
 from gepl_auction_platform_backend.core.models import Teams
+from gepl_auction_platform_backend.core.serializers import FrontEndAssetSerializer
 from gepl_auction_platform_backend.core.serializers import PlayerSerializer
 from gepl_auction_platform_backend.core.serializers import PlayerStatsSerializer
 from gepl_auction_platform_backend.core.serializers import TeamSerializer
@@ -125,6 +127,57 @@ class PlayerStatsDetail(APIView):
         request_data = request.data
         request_data["player"] = pk
         serializer = PlayerStatsSerializer(instance=item, data=request.data)
+        # Check if data is valid
+        if serializer.is_valid():
+            # Save the new iten to the database serializer.save()
+            serializer.save()
+            return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
+
+        # Return validation errors if data is invalid
+        return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class FrontEndAsset(APIView):
+    def get(self, request, f_format=None):
+        params = {
+            k: request.query_params[k]
+            for k in request.query_params
+            if request.query_params[k]
+        }
+        asset_name = params.get("asset_name")
+        asset_id = params.get("id")
+
+        if asset_name:
+            data = FrontEndAssets.objects.filter(asset_name=asset_name).values()
+            return JsonResponse(list(data), safe=False)
+        if asset_id:
+            data = FrontEndAssets.objects.filter(id=asset_id).values()
+            return JsonResponse(list(data), safe=False)
+        data = FrontEndAssets.objects.all()
+        return JsonResponse(list(data), safe=False)
+
+    def post(self, request, f_format=None):
+        serializer = FrontEndAssetSerializer(data=request.data)
+        # Check if data is valid
+        if serializer.is_valid():
+            # Save the new iten to the database serializer.save()
+            serializer.save()
+            return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
+
+        # Return validation errors if data is invalid
+        return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request, f_format=None, pk=None):
+        # Deserialize incoming 350N data s
+        try:
+            item = FrontEndAssets.objects.get(id=request.data["id"])
+        except ObjectDoesNotExist:
+            return JsonResponse(
+                {pk: "Asset does not exist."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        serializer = FrontEndAssetSerializer(instance=item, data=request.data)
         # Check if data is valid
         if serializer.is_valid():
             # Save the new iten to the database serializer.save()

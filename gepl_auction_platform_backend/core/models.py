@@ -74,3 +74,15 @@ class PlayerStats(models.Model):
 
     def __str__(self):
         return f"{self.player}"
+
+
+class FrontEndAssets(models.Model):
+    id = models.AutoField(primary_key=True)
+    asset_name = models.CharField(max_length=255)
+    asset_url = models.URLField(max_length=255)
+
+    class Meta:
+        ordering = ["asset_name", "id"]
+
+    def __str__(self):
+        return f"{self.asset_name}"
