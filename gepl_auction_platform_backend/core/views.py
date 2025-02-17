@@ -153,7 +153,7 @@ class FrontEndAsset(APIView):
         if asset_id:
             data = FrontEndAssets.objects.filter(id=asset_id).values()
             return JsonResponse(list(data), safe=False)
-        data = FrontEndAssets.objects.all()
+        data = FrontEndAssets.objects.all().values()
         return JsonResponse(list(data), safe=False)
 
     def post(self, request, f_format=None):
