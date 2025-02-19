@@ -20,10 +20,12 @@ class User(AbstractUser):
         choices=[
             ("SUPER ADMIN", "SUPER_ADMIN"),
             ("AUCTION MANAGER", "AUCTION_MANAGER"),
-            ("TEAM MANAGER", "TEAM_MANAGER"),
+            ("TEAM OWNER", "TEAM_OWNER"),
+            ("SPECTATOR", "SPECTATOR"),
         ],
         default="SUPER_ADMIN",
     )
+    profile_image = models.URLField(_("Profile image"), blank=True)
 
     def get_absolute_url(self) -> str:
         """Get URL for user's detail view.

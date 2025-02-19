@@ -15,6 +15,7 @@ from gepl_auction_platform_backend.core.serializers import FrontEndAssetSerializ
 from gepl_auction_platform_backend.core.serializers import PlayerSerializer
 from gepl_auction_platform_backend.core.serializers import PlayerStatsSerializer
 from gepl_auction_platform_backend.core.serializers import TeamSerializer
+from gepl_auction_platform_backend.users.models import User
 
 
 class TeamList(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
@@ -79,6 +80,20 @@ class PlayerDetail(
 
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
+
+
+class UserTypeView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, f_format=None):
+        params = {
+            k: request.query_params[k]
+            for k in request.query_params
+            if request.query_params[k]
+        }
+        user_type = params.get("user_type")
+        mydata = User.objects.filter(user_type=user_type).values()
+        return JsonResponse(list(mydata), safe=False)
 
 
 class CategoryPlayers(APIView):

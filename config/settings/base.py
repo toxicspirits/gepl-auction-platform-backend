@@ -84,6 +84,7 @@ THIRD_PARTY_APPS = [
     "allauth.mfa",
     "allauth.socialaccount",
     "rest_framework",
+    "djoser",
     "rest_framework.authtoken",
     "corsheaders",
     "drf_spectacular",
@@ -328,4 +329,8 @@ CHANNEL_LAYERS = {
         #     "hosts": [("127.0.0.1", 6379)],
         # },
     },
+}
+
+SIMPLE_JWT = {
+    "AUTH_HEADER_TYPES": ("Bearer",),
 }

@@ -4,6 +4,7 @@ from gepl_auction_platform_backend.core.models import FrontEndAssets
 from gepl_auction_platform_backend.core.models import Players
 from gepl_auction_platform_backend.core.models import PlayerStats
 from gepl_auction_platform_backend.core.models import Teams
+from gepl_auction_platform_backend.users.models import User
 
 
 class PlayerSerializer(serializers.ModelSerializer):
@@ -53,3 +54,9 @@ class FrontEndAssetSerializer(serializers.ModelSerializer):
     class Meta:
         model = FrontEndAssets
         fields = ["id", "asset_name", "asset_url"]
+
+
+class UserTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "username", "name", "user_type", "profile_image"]

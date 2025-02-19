@@ -13,7 +13,6 @@ from rest_framework.authtoken.views import obtain_auth_token
 from gepl_auction_platform_backend.core.admin import event_admin_site
 from gepl_auction_platform_backend.core import views
 from django.urls import re_path
-from gepl_auction_platform_backend.core import bidding
 
 
 urlpatterns = [
@@ -33,6 +32,7 @@ urlpatterns = [
     path("accounts/", include("allauth.urls")),
     # Your stuff: custom urls includes go here
     # ...
+    re_path(r"^users/?$", views.UserTypeView.as_view()),
     # Media files
     # path("event-admin/", include(event_admin_site.urls, namespace="event-admin")),
     *static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT),
@@ -45,6 +45,8 @@ if settings.DEBUG:
 urlpatterns += [
     # API base url
     path("api/", include("config.api_router")),
+    path("api/auth/", include("djoser.urls")),
+    path("api/auth/", include("djoser.urls.jwt")),
     # DRF auth token
     path("api/auth-token/", obtain_auth_token),
     path("api/schema/", SpectacularAPIView.as_view(), name="api-schema"),

@@ -15,8 +15,13 @@ class Teams(models.Model):
     id = models.AutoField(primary_key=True)
     created_at = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=255)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    owner = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        limit_choices_to={"user_type": "TEAM_OWNER"},
+    )
     budget = models.IntegerField(default=500000000)
+    logo_url = models.URLField(max_length=255, blank=True)
 
     class Meta:
         ordering = ["name"]
@@ -50,6 +55,8 @@ class Players(models.Model):
     )
     base_price = models.IntegerField(default=0)
     shadow_base_price = models.IntegerField(default=0)
+    is_player_sold = models.BooleanField(default=False)
+    team = models.ForeignKey(Teams, on_delete=models.CASCADE, null=True, blank=True)
 
     class Meta:
         ordering = ["name"]

@@ -36,7 +36,8 @@ class UserSignupForm(SignupForm):
         choices=[
             ("SUPER ADMIN", "SUPER_ADMIN"),
             ("AUCTION MANAGER", "AUCTION_MANAGER"),
-            ("TEAM MANAGER", "TEAM_MANAGER"),
+            ("TEAM OWNER", "TEAM_OWNER"),
+            ("SPECTATOR", "SPECTATOR"),
         ],
     )
 
