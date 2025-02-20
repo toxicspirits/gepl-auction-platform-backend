@@ -58,6 +58,7 @@ urlpatterns += [
     path("api/teams/", views.TeamList.as_view()),
     path("api/teams/<int:pk>/", views.TeamDetail.as_view()),
     path("api/players/", views.PlayerList.as_view()),
+    path("api/teams/<int:pk>/players/", views.PlayerInTeamView.as_view()),
     path("api/players/<int:pk>/", views.PlayerDetail.as_view()),
     re_path(r"^api/category/?$", views.CategoryPlayers.as_view()),
     path(r"api/player/<int:pk>/stats/", views.PlayerStatsDetail.as_view()),

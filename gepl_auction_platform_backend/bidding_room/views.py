@@ -7,3 +7,8 @@ def index(request):
 
 def room(request, room_name):
     return render(request, "chat/room.html", {"room_name": room_name})
+
+
+# def room(request, room_name):
+#     return {"request": request,
+#             "room_name": room_name}

@@ -201,3 +201,13 @@ class FrontEndAsset(APIView):
 
         # Return validation errors if data is invalid
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PlayerInTeamView(APIView):
+    def get(self, request, f_format=None, pk=None):
+        players = (
+            Players.objects.select_related("team")
+            .filter(is_player_sold=True, team_id=pk)
+            .values()
+        )
+        return JsonResponse(list(players), status=status.HTTP_200_OK, safe=False)
