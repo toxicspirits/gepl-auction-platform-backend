@@ -77,6 +77,8 @@ DJANGO_APPS = [
     "django.forms",
 ]
 THIRD_PARTY_APPS = [
+    "channels",
+    "channels_postgres",
     "crispy_forms",
     "crispy_bootstrap5",
     "allauth",
@@ -270,7 +272,6 @@ LOGGING = {
 
 REDIS_URL = env("REDIS_URL", default="redis://localhost:6379/0")
 REDIS_SSL = REDIS_URL.startswith("rediss://")
-
 
 # django-allauth
 # ------------------------------------------------------------------------------
