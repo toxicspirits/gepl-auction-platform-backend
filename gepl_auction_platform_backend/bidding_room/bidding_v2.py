@@ -8,21 +8,21 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 def fetch_players_by_category(category):
     # Replace with actual DB queries
     all_players = [
-        {"name": "Player 1", "category": "Batsman"},
-        {"name": "Player 2", "category": "Bowler"},
-        {"name": "Player 3", "category": "All-Rounder"},
-        {"name": "Player 4", "category": "Batsman"},
-        {"name": "Player 5", "category": "Bowler"},
-        {"name": "Player 6", "category": "All-Rounder"},
-        {"name": "Player 7", "category": "Batsman"},
-        {"name": "Player 8", "category": "All-Rounder"},
-        {"name": "Player 9", "category": "Batsman"},
-        {"name": "Player 10", "category": "Bowler"},
-        {"name": "Player 11", "category": "Batsman"},
-        {"name": "Player 12", "category": "All-Rounder"},
-        {"name": "Player 13", "category": "Bowler"},
-        {"name": "Player 14", "category": "Bowler"},
-        {"name": "Player 15", "category": "All-Rounder"},
+        {"name": "Player 1", "category": "CATEGORY_A"},
+        {"name": "Player 2", "category": "CATEGORY_B"},
+        {"name": "Player 3", "category": "CATEGORY_C"},
+        {"name": "Player 4", "category": "CATEGORY_A"},
+        {"name": "Player 5", "category": "CATEGORY_A"},
+        {"name": "Player 6", "category": "CATEGORY_A"},
+        {"name": "Player 7", "category": "CATEGORY_A"},
+        {"name": "Player 8", "category": "CATEGORY_B"},
+        {"name": "Player 9", "category": "CATEGORY_B"},
+        {"name": "Player 10", "category": "CATEGORY_B"},
+        {"name": "Player 11", "category": "CATEGORY_B"},
+        {"name": "Player 12", "category": "CATEGORY_C"},
+        {"name": "Player 13", "category": "CATEGORY_C"},
+        {"name": "Player 14", "category": "CATEGORY_C"},
+        {"name": "Player 15", "category": "CATEGORY_C"},
     ]
     # Filter players only from the selected category
     return [player for player in all_players if player["category"] == category]
