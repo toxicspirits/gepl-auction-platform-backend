@@ -335,3 +335,7 @@ CHANNEL_LAYERS = {
 SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
+
+CORS_ALLOWED_ORIGINS = [
+    "*",
+]
