@@ -10,13 +10,23 @@ from gepl_auction_platform_backend.users.models import User
 class PlayerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Players
-        fields = ["id", "name", "role", "base_price", "shadow_base_price"]
+        fields = [
+            "id",
+            "name",
+            "role",
+            "created_at",
+            "category",
+            "profile_picture",
+            "base_price",
+            "is_player_sold",
+            "team",
+        ]
 
 
 class TeamSerializer(serializers.ModelSerializer):
     class Meta:
         model = Teams
-        fields = ["id", "name", "owner", "budget"]
+        fields = ["id", "name", "created_at", "owner", "logo_url"]
 
 
 class PlayerStatsSerializer(serializers.ModelSerializer):

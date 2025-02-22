@@ -25,7 +25,11 @@ class User(AbstractUser):
         ],
         default="SUPER_ADMIN",
     )
-    profile_image = models.URLField(_("Profile image"), blank=True)
+    profile_image = models.URLField(
+        _("Profile image"),
+        blank=True,
+        default="https://django-backend-services.s3.eu-west-1.amazonaws.com/player-profile/GEPL-Player-Bidding-Screen-V3.jpg",
+    )
 
     def get_absolute_url(self) -> str:
         """Get URL for user's detail view.
