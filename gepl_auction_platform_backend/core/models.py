@@ -18,10 +18,14 @@ class Teams(models.Model):
     owner = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        limit_choices_to={"user_type": "TEAM_OWNER"},
+        limit_choices_to={"user_type": "TEAM OWNER"},
     )
     budget = models.IntegerField(default=500000000)
-    logo_url = models.URLField(max_length=255, blank=True)
+    logo_url = models.URLField(
+        max_length=255,
+        blank=True,
+        default="https://unsplash.com/photos/white-geometric-stylized-flower-abstract-3d-rendering-art-background-trendy-design-element-modern-minimal-fashion-concept-digital-illustration-OE2dIbtTs7E",
+    )
 
     class Meta:
         ordering = ["name"]
@@ -57,6 +61,11 @@ class Players(models.Model):
     shadow_base_price = models.IntegerField(default=0)
     is_player_sold = models.BooleanField(default=False)
     team = models.ForeignKey(Teams, on_delete=models.CASCADE, null=True, blank=True)
+    profile_picture = models.URLField(
+        max_length=255,
+        blank=True,
+        default="https://unsplash.com/photos/a-man-wearing-a-green-hat-and-a-black-shirt-bw4JnNQ85CM",
+    )
 
     class Meta:
         ordering = ["name"]
