@@ -8,21 +8,21 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 def fetch_players_by_category(category):
     # Replace with actual DB queries
     all_players = [
-        {"name": "Player 1", "category": "CATEGORY_A"},
-        {"name": "Player 2", "category": "CATEGORY_B"},
-        {"name": "Player 3", "category": "CATEGORY_C"},
-        {"name": "Player 4", "category": "CATEGORY_A"},
-        {"name": "Player 5", "category": "CATEGORY_A"},
-        {"name": "Player 6", "category": "CATEGORY_A"},
-        {"name": "Player 7", "category": "CATEGORY_A"},
-        {"name": "Player 8", "category": "CATEGORY_B"},
-        {"name": "Player 9", "category": "CATEGORY_B"},
-        {"name": "Player 10", "category": "CATEGORY_B"},
-        {"name": "Player 11", "category": "CATEGORY_B"},
-        {"name": "Player 12", "category": "CATEGORY_C"},
-        {"name": "Player 13", "category": "CATEGORY_C"},
-        {"name": "Player 14", "category": "CATEGORY_C"},
-        {"name": "Player 15", "category": "CATEGORY_C"},
+        {"name": "Player 1", "category": "CATEGORY_A", "id": 1},
+        {"name": "Player 2", "category": "CATEGORY_B", "id": 2},
+        {"name": "Player 3", "category": "CATEGORY_C", "id": 3},
+        {"name": "Player 4", "category": "CATEGORY_A", "id": 4},
+        {"name": "Player 5", "category": "CATEGORY_A", "id": 5},
+        {"name": "Player 6", "category": "CATEGORY_A", "id": 6},
+        {"name": "Player 7", "category": "CATEGORY_A", "id": 7},
+        {"name": "Player 8", "category": "CATEGORY_B", "id": 8},
+        {"name": "Player 9", "category": "CATEGORY_B", "id": 9},
+        {"name": "Player 10", "category": "CATEGORY_B", "id": 10},
+        {"name": "Player 11", "category": "CATEGORY_B", "id": 11},
+        {"name": "Player 12", "category": "CATEGORY_C", "id": 12},
+        {"name": "Player 13", "category": "CATEGORY_C", "id": 13},
+        {"name": "Player 14", "category": "CATEGORY_C", "id": 14},
+        {"name": "Player 15", "category": "CATEGORY_C", "id": 15},
     ]
     # Filter players only from the selected category
     return [player for player in all_players if player["category"] == category]
@@ -84,6 +84,7 @@ class AuctionConsumer(AsyncWebsocketConsumer):
                         "bid_amount": bid_amount,
                         "bidder": bidder,
                         "player": current_player["name"],
+                        "player_id": current_player["id"],
                     },
                 )
                 await self.send_budget_update()
@@ -111,6 +112,7 @@ class AuctionConsumer(AsyncWebsocketConsumer):
                     "type": "new_player",
                     "player": self.channel_layer.current_player.get("name"),
                     "category": self.channel_layer.current_player.get("category"),
+                    "player_id": self.channel_layer.current_player.get("id"),
                 },
             )
             await self.restart_bid_timer(20, sell=False)
@@ -145,6 +147,7 @@ class AuctionConsumer(AsyncWebsocketConsumer):
                 {
                     "type": "player_sold",
                     "player": current_player.get("name"),
+                    "player_id": current_player.get("id"),
                     "bidder": highest_bid["bidder"],
                     "bid_amount": highest_bid["bid_amount"],
                 },
@@ -155,6 +158,7 @@ class AuctionConsumer(AsyncWebsocketConsumer):
                 {
                     "type": "player_unsold",
                     "player": current_player.get("name"),
+                    "player_id": current_player.get("id"),
                 },
             )
         await self.send_next_player()
