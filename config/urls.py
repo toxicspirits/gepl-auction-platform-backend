@@ -32,7 +32,7 @@ urlpatterns = [
     path("accounts/", include("allauth.urls")),
     # Your stuff: custom urls includes go here
     # ...
-    re_path(r"^users/?$", views.UserTypeView.as_view()),
+    re_path(r"^api/users/?$", views.UserTypeView.as_view()),
     # Media files
     # path("event-admin/", include(event_admin_site.urls, namespace="event-admin")),
     *static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT),
