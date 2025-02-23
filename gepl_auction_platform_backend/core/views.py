@@ -83,8 +83,6 @@ class PlayerDetail(
 
 
 class UserTypeView(APIView):
-    permission_classes = [IsAuthenticated]
-
     def get(self, request, f_format=None):
         params = {
             k: request.query_params[k]
