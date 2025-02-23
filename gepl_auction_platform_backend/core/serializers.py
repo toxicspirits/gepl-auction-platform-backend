@@ -26,7 +26,7 @@ class PlayerSerializer(serializers.ModelSerializer):
 class TeamSerializer(serializers.ModelSerializer):
     class Meta:
         model = Teams
-        fields = ["id", "name", "created_at", "owner", "logo_url"]
+        fields = ["id", "name", "created_at", "owner", "logo_url", "budget"]
 
 
 class PlayerStatsSerializer(serializers.ModelSerializer):
