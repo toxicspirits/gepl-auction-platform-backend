@@ -95,7 +95,7 @@ class AuctionConsumer(AsyncWebsocketConsumer):
                 self.channel_layer.bidder_budgets[team.owner.username] = team.budget
                 self.channel_layer.bidder_budgets2.append(
                     {
-                        "bidder": team.owner.username,
+                        "bidder": team.owner.id,
                         "budget": team.budget,
                     },
                 )
