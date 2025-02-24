@@ -92,7 +92,7 @@ class AuctionConsumer(AsyncWebsocketConsumer):
         if action == "START_AUCTION":
             category = data.get("category")
             async for team in Teams.objects.all().prefetch_related("owner"):
-                self.channel_layer.bidder_budgets[team.owner.username] = team.budget
+                self.channel_layer.bidder_budgets[team.owner.id] = team.budget
                 self.channel_layer.bidder_budgets2.append(
                     {
                         "bidder": team.owner.id,
