@@ -107,7 +107,7 @@ class AuctionConsumer(AsyncWebsocketConsumer):
 
         elif action == "place_bid":
             bid_amount = data.get("bid_amount")
-            bidder = data.get("bidder")
+            bidder = int(data.get("bidder"))
             current_player = self.channel_layer.current_player
             bidder_budgets = self.channel_layer.bidder_budgets
 
@@ -199,7 +199,7 @@ class AuctionConsumer(AsyncWebsocketConsumer):
 
         if sell and highest_bid and current_player:
             bidder_username = self.channel_layer.highest_bid["bidder"]
-            user_obj = await User.objects.aget(username=highest_bid["bidder"])
+            user_obj = await User.objects.aget(id=highest_bid["bidder"])
             team_obj = await Teams.objects.aget(owner=user_obj.id)
 
             await sync_to_async(update_player_obj)(
