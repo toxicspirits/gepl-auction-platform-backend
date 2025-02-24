@@ -337,6 +337,6 @@ SIMPLE_JWT = {
 }
 
 # CORS_ALLOW_ALL_ORIGINS = True
-CSRF_TRUSTED_ORIGINS = ["https://gepltest.aagaming.in/"]
-CSRF_ALLOWED_ORIGINS = ["https://gepltest.aagaming.in/"]
-CORS_ORIGINS_WHITELIST = ["https://gepltest.aagaming.in/"]
+CSRF_TRUSTED_ORIGINS = ["https://gepltest.aagaming.in"]
+CSRF_ALLOWED_ORIGINS = ["https://gepltest.aagaming.in"]
+CORS_ORIGINS_WHITELIST = ["https://gepltest.aagaming.in"]
