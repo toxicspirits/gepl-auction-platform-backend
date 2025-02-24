@@ -42,6 +42,42 @@ class AuctionConsumer(AsyncWebsocketConsumer):
             self.channel_layer.bidder_budgets = {}
             self.channel_layer.bidder_budgets2 = []
             self.channel_layer.timer_task = None
+            self.channel_layer.bid_number = 0
+            self.channel_layer.bids = {
+                "CATEGORY_A": [
+                    100000,
+                    105000,
+                    110000,
+                    115000,
+                    120000,
+                    130000,
+                    140000,
+                    150000,
+                    160000,
+                ],
+                "CATEGORY_B": [
+                    65000,
+                    70000,
+                    75000,
+                    80000,
+                    85000,
+                    90000,
+                    100000,
+                    110000,
+                    120000,
+                ],
+                "CATEGORY_C": [
+                    35000,
+                    40000,
+                    45000,
+                    50000,
+                    55000,
+                    60000,
+                    70000,
+                    80000,
+                    90000,
+                ],
+            }
 
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(
@@ -88,7 +124,8 @@ class AuctionConsumer(AsyncWebsocketConsumer):
                     "bidder": bidder,
                 }
                 self.channel_layer.bidder_budgets[bidder] -= bid_amount
-
+                current_category = self.channel_layer.current_player.get("category")
+                bid_number = self.channel_layer.bid_number
                 await self.channel_layer.group_send(
                     self.room_group_name,
                     {
@@ -97,8 +134,12 @@ class AuctionConsumer(AsyncWebsocketConsumer):
                         "bidder": bidder,
                         "player": current_player["name"],
                         "player_id": current_player["id"],
+                        "next_bid": self.channel_layer.bids[current_category][
+                            bid_number
+                        ],
                     },
                 )
+                self.channel_layer.bid_number += 1
                 await self.send_budget_update()
                 await self.restart_bid_timer(20, sell=True)
 
@@ -117,7 +158,8 @@ class AuctionConsumer(AsyncWebsocketConsumer):
 
         if self.channel_layer.player_queue:
             self.channel_layer.current_player = self.channel_layer.player_queue.pop(0)
-
+            current_category = self.channel_layer.current_player.get("category")
+            bid_number = self.channel_layer.bid_number
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
@@ -125,8 +167,10 @@ class AuctionConsumer(AsyncWebsocketConsumer):
                     "player": self.channel_layer.current_player.get("name"),
                     "category": self.channel_layer.current_player.get("category"),
                     "player_id": self.channel_layer.current_player.get("id"),
+                    "bid": self.channel_layer.bids[current_category][bid_number],
                 },
             )
+            self.channel_layer.bid_number = self.channel_layer.bid_number + 1
             await self.restart_bid_timer(20, sell=False)
         else:
             await self.send(text_data=json.dumps({"type": "auction_complete"}))
@@ -167,6 +211,7 @@ class AuctionConsumer(AsyncWebsocketConsumer):
                 user_obj.id,
                 self.channel_layer.bidder_budgets[bidder_username],
             )
+            self.channel_layer.bid_number = 0
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
@@ -178,6 +223,7 @@ class AuctionConsumer(AsyncWebsocketConsumer):
                 },
             )
         elif current_player:
+            self.channel_layer.bid_number = 0
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
