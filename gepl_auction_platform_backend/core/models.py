@@ -32,7 +32,7 @@ class Teams(models.Model):
         get_latest_by = "created_at"
 
     def __str__(self):
-        return f"{self.id}"
+        return f"{self.name}"
 
 
 class Players(models.Model):
@@ -72,7 +72,7 @@ class Players(models.Model):
         get_latest_by = "created_at"
 
     def __str__(self):
-        return f"{self.id}"
+        return f"{self.name}"
 
 
 class PlayerStats(models.Model):

@@ -25,6 +25,7 @@ class User(AbstractUser):
         ],
         default="SUPER_ADMIN",
     )
+
     profile_image = models.URLField(
         _("Profile image"),
         blank=True,
@@ -39,3 +40,6 @@ class User(AbstractUser):
 
         """
         return reverse("users:detail", kwargs={"username": self.username})
+
+    def __str__(self):
+        return f"{self.username}"
