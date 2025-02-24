@@ -11,7 +11,10 @@ from .base import env
 # https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["example.com"])
+ALLOWED_HOSTS = env.list(
+    "DJANGO_ALLOWED_HOSTS",
+    default=["https://gepltest.aagaming.in/"],
+)
 
 # DATABASES
 # ------------------------------------------------------------------------------
@@ -194,7 +197,7 @@ LOGGING = {
 # -------------------------------------------------------------------------------
 # Tools that generate code samples can use SERVERS to point to the correct domain
 SPECTACULAR_SETTINGS["SERVERS"] = [
-    {"url": "https://geplapi.aagaming.in", "description": "Production server"},
+    {"url": "https://gepltest.aagaming.in/", "description": "Production server"},
 ]
 # Your stuff...
 # ------------------------------------------------------------------------------
