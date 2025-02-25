@@ -336,7 +336,7 @@ SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
 
-# CORS_ALLOW_ALL_ORIGINS = True
-CSRF_TRUSTED_ORIGINS = ["https://gepltest.aagaming.in"]
-CSRF_ALLOWED_ORIGINS = ["https://gepltest.aagaming.in"]
-CORS_ORIGINS_WHITELIST = ["https://gepltest.aagaming.in"]
+CORS_ALLOW_ALL_ORIGINS = True
+# CSRF_TRUSTED_ORIGINS = ["https://gepltest.aagaming.in"]
+# CSRF_ALLOWED_ORIGINS = ["https://gepltest.aagaming.in"]
+# CORS_ORIGINS_WHITELIST = ["https://gepltest.aagaming.in"]
