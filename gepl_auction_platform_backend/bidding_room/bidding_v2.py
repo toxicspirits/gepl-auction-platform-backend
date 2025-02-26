@@ -1,6 +1,5 @@
 import asyncio
 import json
-from datetime import UTC
 from datetime import datetime
 
 from asgiref.sync import sync_to_async
@@ -253,7 +252,9 @@ class AuctionConsumer(AsyncWebsocketConsumer):
                     "category": self.channel_layer.current_player.get("category"),
                     "player_id": self.channel_layer.current_player.get("id"),
                     "bid": self.channel_layer.bids[current_category][bid_number],
-                    "timestamp": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
+                    "timestamp": datetime.now(datetime.UTC).strftime(
+                        "%Y-%m-%dT%H:%M:%SZ",
+                    ),
                 },
             )
             self.channel_layer.bid_number = self.channel_layer.bid_number + 1
