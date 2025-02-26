@@ -184,7 +184,10 @@ class AuctionConsumer(AsyncWebsocketConsumer):
                         "budget": team.budget,
                     },
                 )
-            player_list = Players.objects.filter(category=category).values()
+            player_list = Players.objects.filter(
+                category=category,
+                is_player_sold=False,
+            ).values()
             self.channel_layer.player_queue = await sync_to_async(create_response)(
                 player_list,
             )
