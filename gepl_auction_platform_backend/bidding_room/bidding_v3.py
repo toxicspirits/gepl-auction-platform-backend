@@ -23,8 +23,10 @@ def update_player_obj(player_id, bid, team_id):
     )
 
 
-def update_team_obj(owner, budget):
-    Teams.objects.filter(owner=owner).update(budget=budget)
+def update_team_obj(owner, highest_bid):
+    obj = Teams.objects.get(owner=owner)
+    updated_budget = obj.budget - highest_bid
+    Teams.objects.filter(owner=owner).update(budget=updated_budget)
 
 
 class AuctionConsumer(AsyncWebsocketConsumer):
@@ -213,7 +215,9 @@ class AuctionConsumer(AsyncWebsocketConsumer):
                     "bid_amount": bid_amount,
                     "bidder": bidder,
                 }
-                self.channel_layer.bidder_budgets[bidder] -= bid_amount
+                self.channel_layer.bidder_budgets[bidder] = (
+                    bidder_budgets[bidder] - bid_amount
+                )
                 current_category = self.channel_layer.current_player.get("category")
                 bid_number = self.channel_layer.bid_number
                 await self.channel_layer.group_send(
@@ -247,6 +251,9 @@ class AuctionConsumer(AsyncWebsocketConsumer):
             self.channel_layer.timer_task.cancel()
 
         if self.channel_layer.player_queue:
+            current_timestamp = datetime.now(UTC).strftime(
+                "%Y-%m-%dT%H:%M:%SZ",
+            )
             self.channel_layer.current_player = self.channel_layer.player_queue.pop(0)
             current_category = self.channel_layer.current_player.get("category")
             bid_number = self.channel_layer.bid_number
@@ -258,9 +265,7 @@ class AuctionConsumer(AsyncWebsocketConsumer):
                     "category": self.channel_layer.current_player.get("category"),
                     "player_id": self.channel_layer.current_player.get("id"),
                     "bid": self.channel_layer.bids[current_category][bid_number],
-                    "timestamp": datetime.now(UTC).strftime(
-                        "%Y-%m-%dT%H:%M:%SZ",
-                    ),
+                    "timestamp": current_timestamp,
                 },
             )
             self.channel_layer.bid_number = self.channel_layer.bid_number + 1
@@ -302,7 +307,7 @@ class AuctionConsumer(AsyncWebsocketConsumer):
             )
             await sync_to_async(update_team_obj)(
                 user_obj.id,
-                self.channel_layer.bidder_budgets[bidder_username],
+                highest_bid["bid_amount"],
             )
             self.channel_layer.bid_number = 0
             await self.channel_layer.group_send(
@@ -311,7 +316,7 @@ class AuctionConsumer(AsyncWebsocketConsumer):
                     "type": "player_sold",
                     "player": current_player.get("name"),
                     "player_id": current_player.get("id"),
-                    "bidder": highest_bid["bidder"],
+                    "bidder": bidder_username,
                     "bid_amount": highest_bid["bid_amount"],
                 },
             )
