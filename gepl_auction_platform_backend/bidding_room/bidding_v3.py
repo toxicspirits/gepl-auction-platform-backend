@@ -179,7 +179,7 @@ class AuctionConsumer(AsyncWebsocketConsumer):
         if action == "START_AUCTION":
             category = data.get("category")
             async for team in Teams.objects.all().prefetch_related("owner"):
-                self.channel_layer.bidder_budgets[team.owner.id] = team.budget
+                self.channel_layer.bidder_budgets[str(team.owner.id)] = team.budget
                 self.channel_layer.bidder_budgets2.append(
                     {
                         "bidder": team.owner.id,
@@ -206,7 +206,7 @@ class AuctionConsumer(AsyncWebsocketConsumer):
             if (
                 current_player
                 and current_player.get("name")
-                and bidder_budgets.get(bidder, 0) >= bid_amount
+                and bidder_budgets.get(str(bidder), 0) >= bid_amount
             ):
                 obj = await Players.objects.aget(id=current_player.get("id"))
                 obj.bid_amount = bid_amount
@@ -215,8 +215,8 @@ class AuctionConsumer(AsyncWebsocketConsumer):
                     "bid_amount": bid_amount,
                     "bidder": bidder,
                 }
-                self.channel_layer.bidder_budgets[bidder] = (
-                    bidder_budgets[bidder] - bid_amount
+                self.channel_layer.bidder_budgets[str(bidder)] = (
+                    bidder_budgets[str(bidder)] - bid_amount
                 )
                 current_category = self.channel_layer.current_player.get("category")
                 bid_number = self.channel_layer.bid_number
@@ -225,7 +225,7 @@ class AuctionConsumer(AsyncWebsocketConsumer):
                     {
                         "type": "new_bid",
                         "bid_amount": bid_amount,
-                        "bidder": bidder,
+                        "bidder": int(bidder),
                         "player": current_player["name"],
                         "player_id": current_player["id"],
                         "next_bid": self.channel_layer.bids[current_category][
