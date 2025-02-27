@@ -2,6 +2,7 @@ import asyncio
 import json
 from datetime import datetime
 
+import pytz
 from asgiref.sync import sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 
@@ -250,7 +251,8 @@ class AuctionConsumer(AsyncWebsocketConsumer):
             self.channel_layer.timer_task.cancel()
 
         if self.channel_layer.player_queue:
-            current_timestamp = datetime.now(tz="UTC").strftime("%Y-%m-%dT%H:%M:%SZ")
+            tz = pytz.timezone("utz")
+            current_timestamp = datetime.now(tz=tz).strftime("%Y-%m-%dT%H:%M:%SZ")
             self.channel_layer.current_player = self.channel_layer.player_queue.pop(0)
             current_category = self.channel_layer.current_player.get("category")
             bid_number = self.channel_layer.bid_number
