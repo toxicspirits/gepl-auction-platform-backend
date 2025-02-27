@@ -251,7 +251,7 @@ class AuctionConsumer(AsyncWebsocketConsumer):
             self.channel_layer.timer_task.cancel()
 
         if self.channel_layer.player_queue:
-            tz = pytz.timezone("utz")
+            tz = pytz.timezone("utc")
             current_timestamp = datetime.now(tz=tz).strftime("%Y-%m-%dT%H:%M:%SZ")
             self.channel_layer.current_player = self.channel_layer.player_queue.pop(0)
             current_category = self.channel_layer.current_player.get("category")
