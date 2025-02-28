@@ -237,6 +237,17 @@ class AuctionConsumer(AsyncWebsocketConsumer):
                 await self.send_budget_update()
                 await self.restart_bid_timer(20, sell=True)
 
+            else:
+                await self.channel_layer.group_send(
+                    self.room_group_name,
+                    {
+                        "type": "bid_rejected",
+                        "bidder": bidder,
+                        "remaining_budget": bidder_budgets.get(bidder),
+                        "bid_amount": bid_amount,
+                    },
+                )
+
     async def send_budget_update(self):
         await self.channel_layer.group_send(
             self.room_group_name,
