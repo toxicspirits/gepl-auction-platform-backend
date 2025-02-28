@@ -210,7 +210,7 @@ class AuctionConsumer(AsyncWebsocketConsumer):
             if (
                 current_player
                 and current_player.get("name")
-                and bidder_budgets.get(bidder, 0) >= bid_amount
+                and bidder_budgets.get(bidder, 0) >= bid_increase
             ):
                 obj = await Players.objects.aget(id=current_player.get("id"))
                 obj.bid_amount = bid_amount
