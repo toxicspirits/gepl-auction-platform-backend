@@ -202,7 +202,11 @@ class AuctionConsumer(AsyncWebsocketConsumer):
             bidder = int(data.get("bidder"))
             current_player = self.channel_layer.current_player
             bidder_budgets = self.channel_layer.bidder_budgets
-
+            bid_increase = bid_amount - (
+                self.channel_layer.highest_bid["bidder"]
+                if self.channel_layer.highest_bid
+                else 0
+            )
             if (
                 current_player
                 and current_player.get("name")
@@ -216,7 +220,7 @@ class AuctionConsumer(AsyncWebsocketConsumer):
                     "bidder": bidder,
                 }
                 self.channel_layer.bidder_budgets[bidder] = (
-                    bidder_budgets[bidder] - bid_amount
+                    bidder_budgets[bidder] - bid_increase
                 )
                 current_category = self.channel_layer.current_player.get("category")
                 bid_number = self.channel_layer.bid_number
@@ -256,6 +260,9 @@ class AuctionConsumer(AsyncWebsocketConsumer):
                 "budgets": self.channel_layer.bidder_budgets,
             },
         )
+
+    async def bid_rejected(self, event):
+        await self.send(text_data=json.dumps(event))
 
     async def send_next_player(self):
         if self.channel_layer.timer_task:
