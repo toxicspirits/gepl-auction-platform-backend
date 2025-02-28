@@ -202,16 +202,15 @@ class AuctionConsumer(AsyncWebsocketConsumer):
             bidder = int(data.get("bidder"))
             current_player = self.channel_layer.current_player
             bidder_budgets = self.channel_layer.bidder_budgets
-            bid_increase = bid_amount - (
-                self.channel_layer.highest_bid["bidder"]
-                if self.channel_layer.highest_bid
-                else 0
-            )
+            highest_bid = self.channel_layer.highest_bid
             if (
                 current_player
                 and current_player.get("name")
-                and bidder_budgets.get(bidder, 0) >= bid_increase
+                and bidder_budgets.get(bidder, 0) >= bid_amount
             ):
+                bid_increase = bid_amount - (
+                    highest_bid["bid_amount"] if highest_bid else 0
+                )
                 obj = await Players.objects.aget(id=current_player.get("id"))
                 obj.bid_amount = bid_amount
                 await obj.asave()
