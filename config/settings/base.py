@@ -49,7 +49,7 @@ LOCALE_PATHS = [str(BASE_DIR / "locale")]
 DATABASES = {
     "default": env.db(
         "DATABASE_URL",
-        default="postgres:///gepl_auction_platform_backend",
+        default="postgres://postgres:RgA856S^@database-1.cbq8ys4m2w5w.ap-south-1.rds.amazonaws.com:5432/gepl_auction_platform_backend",
     ),
 }
 DATABASES["default"]["ATOMIC_REQUESTS"] = True
