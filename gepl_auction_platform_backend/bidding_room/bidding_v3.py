@@ -30,8 +30,6 @@ def update_team_obj(owner, highest_bid):
 
 
 class AuctionConsumer(AsyncWebsocketConsumer):
-    connected_clients = set()
-
     async def connect(self):
         self.room_group_name = "auction_room"
         await self.channel_layer.group_add(
