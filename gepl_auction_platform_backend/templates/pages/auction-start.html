@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Auction Control Panel</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        margin: 50px;
+      }
+
+      button,
+      select {
+        padding: 10px;
+        font-size: 16px;
+        margin: 10px;
+      }
+
+      #messages {
+        margin-top: 20px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+        text-align: left;
+        background: #f9f9f9;
+        min-height: 100px;
+        overflow-y: auto;
+      }
+
+      .message {
+        border-bottom: 1px solid #ddd;
+        padding: 5px;
+        font-family: monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Player Auction System</h2>
+    <label for="category">Select Category:</label>
+    <select id="category">
+      <option value="CATEGORY_A">Category A</option>
+      <option value="CATEGORY_B">Category B</option>
+      <option value="CATEGORY_C">Category C</option>
+    </select>
+    <br />
+    <button onclick="startAuction()">Start Auction</button>
+    <button onclick="sendWebSocketMessage('next')">Get New Player</button>
+    <h3>WebSocket Events:</h3>
+    <div id="messages"></div>
+    <script>
+      const socket = new WebSocket('ws://13.127.43.11:8001/ws/bidding_room/auction_room?origin=ws://13.127.43.11:8001');
+
+      socket.onopen = function(event) {
+        console.log('WebSocket connected');
+        logMessage({
+          type: 'system',
+          message: 'WebSocket connected'
+        });
+      };
+
+      socket.onmessage = function(event) {
+        console.log('Message from server:', event.data);
+        try {
+          const data = JSON.parse(event.data);
+          logMessage(data);
+        } catch (e) {
+          logMessage({
+            type: 'error',
+            message: 'Invalid JSON received',
+            raw: event.data
+          });
+        }
+      };
+
+      socket.onerror = function(event) {
+        console.error('WebSocket error:', event);
+        logMessage({
+          type: 'error',
+          message: 'WebSocket encountered an error'
+        });
+      };
+
+      socket.onclose = function(event) {
+        console.log('WebSocket closed');
+        logMessage({
+          type: 'system',
+          message: 'WebSocket connection closed'
+        });
+      };
+
+      function startAuction() {
+        const category = document.getElementById("category").value;
+        sendWebSocketMessage('start', category);
+      }
+
+      function sendWebSocketMessage(action, category = null) {
+        let message;
+        if (action === 'start') {
+          message = {
+            "action": "START_AUCTION",
+            "category": category
+          };
+        } else if (action === 'next') {
+          message = {
+            "action": "get_next_player"
+          };
+        }
+
+        if (socket.readyState === WebSocket.OPEN) {
+          socket.send(JSON.stringify(message));
+          console.log('Sent:', message);
+          logMessage({
+            type: 'sent',
+            message: message
+          });
+        } else {
+          console.error('WebSocket is not open');
+          logMessage({
+            type: 'error',
+            message: 'WebSocket is not open'
+          });
+        }
+      }
+
+      function logMessage(data) {
+        const messagesDiv = document.getElementById("messages");
+        const messageElement = document.createElement("div");
+        messageElement.classList.add("message");
+
+        let formattedMessage = `<strong>${data.type.toUpperCase()}:</strong> `;
+
+        if (data.message) {
+          formattedMessage += `<pre>${JSON.stringify(data.message, null, 2)}</pre>`;
+        } else if (data.raw) {
+          formattedMessage += `<pre>${data.raw}</pre>`;
+        }
+
+        messageElement.innerHTML = formattedMessage;
+        messagesDiv.appendChild(messageElement);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight; // Auto-scroll to the latest message
+      }
+    </script>
+  </body>
+</html>

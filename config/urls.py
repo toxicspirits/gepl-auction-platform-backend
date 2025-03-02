@@ -32,6 +32,11 @@ urlpatterns = [
     path("accounts/", include("allauth.urls")),
     # Your stuff: custom urls includes go here
     # ...
+    path(
+        "auction/manage/",
+        TemplateView.as_view(template_name="pages/auction-start.html"),
+        name="auction-manage",
+    ),
     re_path(r"^api/users/?$", views.UserTypeView.as_view()),
     # Media files
     # path("event-admin/", include(event_admin_site.urls, namespace="event-admin")),

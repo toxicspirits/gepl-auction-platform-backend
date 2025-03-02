@@ -241,7 +241,7 @@ class AuctionConsumer(AsyncWebsocketConsumer):
                 )
                 self.channel_layer.bid_number += 1
                 await self.send_budget_update()
-                await self.restart_bid_timer(20, sell=True)
+                await self.restart_bid_timer(18, sell=True)
 
             else:
                 await self.channel_layer.group_send(
