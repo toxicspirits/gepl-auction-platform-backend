@@ -52,7 +52,7 @@
     <h3>WebSocket Events:</h3>
     <div id="messages"></div>
     <script>
-      const socket = new WebSocket('ws://13.127.43.11:8001/ws/bidding_room/auction_room?origin=ws://13.127.43.11:8001');
+      const socket = new WebSocket('wss://websocketgepl.aagaming.in/ws/bidding_room/auction_room?origin=wss://websocketgepl.aagaming.in');
 
       socket.onopen = function(event) {
         console.log('WebSocket connected');
