@@ -42,7 +42,9 @@ class AuctionConsumer(AsyncWebsocketConsumer):
         if not hasattr(self.channel_layer, "player_queue"):
             self.channel_layer.player_queue = []
             self.channel_layer.current_player = None
+            self.channel_layer.last_player = None
             self.channel_layer.highest_bid = None
+            self.channel_layer.last_bid = 0
             self.channel_layer.bidder_budgets = {}
             self.channel_layer.bidder_budgets2 = []
             self.channel_layer.timer_task = None
@@ -208,8 +210,8 @@ class AuctionConsumer(AsyncWebsocketConsumer):
         data = json.loads(text_data)
         action = data.get("action")
 
-        if action == "START_AUCTION":
-            category = data.get("category")
+        if action == "START_PLAYER_AUCTION":
+            player_id = data.get("player_id")
             async for team in Teams.objects.all().prefetch_related("owner"):
                 self.channel_layer.bidder_budgets[team.owner.id] = team.budget
                 self.channel_layer.bidder_budgets2.append(
@@ -219,8 +221,7 @@ class AuctionConsumer(AsyncWebsocketConsumer):
                     },
                 )
             player_list = Players.objects.filter(
-                category=category,
-                is_player_sold=False,
+                id=player_id,
             ).values()
             self.channel_layer.player_queue = await sync_to_async(create_response)(
                 player_list,
@@ -228,6 +229,9 @@ class AuctionConsumer(AsyncWebsocketConsumer):
 
         elif action == "get_next_player":
             await self.send_next_player()
+
+        elif action == "get_last_player":
+            await self.send_last_player()
 
         elif action == "place_bid":
             bid_amount = data.get("bid_amount")
@@ -241,11 +245,12 @@ class AuctionConsumer(AsyncWebsocketConsumer):
             if (
                 current_player
                 and current_player.get("name")
-                and current_budget >= bid_amount
+                and current_budget >= bid_amount > self.channel_layer.last_bid
             ):
                 bid_increase = bid_amount - (
                     highest_bid["bid_amount"] if highest_bid else 0
                 )
+                self.channel_layer.last_bid = bid_amount
                 obj = await Players.objects.aget(id=current_player.get("id"))
                 obj.bid_amount = bid_amount
                 await obj.asave()
@@ -276,6 +281,10 @@ class AuctionConsumer(AsyncWebsocketConsumer):
                 await self.restart_bid_timer(18, sell=True)
 
             else:
+                if current_budget < bid_amount:
+                    msg = "Insufficient funds to place bid."
+                if not bid_amount > highest_bid["bid_amount"]:
+                    msg = "Bid too low. Place bid greater than current bid."
                 await self.channel_layer.group_send(
                     self.room_group_name,
                     {
@@ -283,6 +292,7 @@ class AuctionConsumer(AsyncWebsocketConsumer):
                         "bidder": bidder,
                         "remaining_budget": bidder_budgets.get(bidder),
                         "bid_amount": bid_amount,
+                        "msg": msg,
                     },
                 )
 
@@ -306,6 +316,7 @@ class AuctionConsumer(AsyncWebsocketConsumer):
             tz = pytz.timezone("utc")
             current_timestamp = datetime.now(tz=tz).strftime("%Y-%m-%dT%H:%M:%SZ")
             self.channel_layer.current_player = self.channel_layer.player_queue.pop(0)
+            self.channel_layer.last_player = self.channel_layer.current_player
             current_category = self.channel_layer.current_player.get("category")
             bid_number = self.channel_layer.bid_number
             await self.channel_layer.group_send(
@@ -315,6 +326,31 @@ class AuctionConsumer(AsyncWebsocketConsumer):
                     "player": self.channel_layer.current_player.get("name"),
                     "category": self.channel_layer.current_player.get("category"),
                     "player_id": self.channel_layer.current_player.get("id"),
+                    "bid": self.channel_layer.bids[current_category][bid_number],
+                    "timestamp": current_timestamp,
+                },
+            )
+            self.channel_layer.bid_number = self.channel_layer.bid_number + 1
+            await self.restart_bid_timer(20, sell=False)
+        else:
+            await self.send(text_data=json.dumps({"type": "auction_complete"}))
+
+    async def send_last_player(self):
+        if self.channel_layer.timer_task:
+            self.channel_layer.timer_task.cancel()
+
+        if self.channel_layer.last_player:
+            tz = pytz.timezone("utc")
+            current_timestamp = datetime.now(tz=tz).strftime("%Y-%m-%dT%H:%M:%SZ")
+            current_category = self.channel_layer.last_player.get("category")
+            bid_number = self.channel_layer.bid_number
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    "type": "new_player",
+                    "player": self.channel_layer.last_player.get("name"),
+                    "category": self.channel_layer.last_player.get("category"),
+                    "player_id": self.channel_layer.last_player.get("id"),
                     "bid": self.channel_layer.bids[current_category][bid_number],
                     "timestamp": current_timestamp,
                 },

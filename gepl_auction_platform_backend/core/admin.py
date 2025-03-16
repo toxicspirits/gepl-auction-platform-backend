@@ -24,7 +24,7 @@ class TeamsAdmin(ModelAdmin):
 class PlayersAdmin(ModelAdmin):
     list_display = ["name", "category", "team"]
     search_fields = ["name"]
-    list_filter = ("is_player_sold", "category")
+    list_filter = ("is_player_sold", "category", "is_player_auctioned")
 
 
 event_admin_site = AdminSite(name="auction-admin")
