@@ -18,6 +18,33 @@
         margin: 10px;
       }
 
+      table {
+        width: 60%;
+        margin: 20px auto;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        padding: 10px;
+        border: 1px solid #ddd;
+        text-align: center;
+        cursor: pointer;
+      }
+
+      th {
+        background-color: #f4f4f4;
+      }
+
+      tr:hover {
+        background-color: #f1f1f1;
+      }
+
+      .selected {
+        background-color: #a3d2a1 !important;
+        font-weight: bold;
+      }
+
       #messages {
         margin-top: 20px;
         padding: 10px;
@@ -36,34 +63,60 @@
         padding: 5px;
         font-family: monospace;
       }
+
+      #refresh-timer {
+        font-size: 14px;
+        color: #555;
+      }
     </style>
   </head>
   <body>
     <h2>Player Auction System</h2>
+    <!-- Category Selection -->
     <label for="category">Select Category:</label>
-    <select id="category">
+    <select id="category" onchange="fetchPlayers(true)">
+      <option value="">--Select a Category--</option>
       <option value="CATEGORY_A">Category A</option>
       <option value="CATEGORY_B">Category B</option>
       <option value="CATEGORY_C">Category C</option>
     </select>
+    <button onclick="fetchPlayers(true)">Refresh Players</button>
+    <span id="refresh-timer">(Next auto-refresh in <span id="timer">60</span>s)</span>
     <br />
-    <button onclick="startAuction()">Start Auction</button>
-    <button onclick="sendWebSocketMessage('next')">Get New Player</button>
+    <br />
+    <!-- Players Table -->
+    <table id="playersTable">
+      <thead>
+        <tr>
+          <th>Player Name</th>
+          <th>is_player_sold</th>
+          <th>is_player_auctioned</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td colspan="3">Select a category to load players.</td>
+        </tr>
+      </tbody>
+    </table>
+    <br />
+    <button onclick="startAuction()" disabled id="startAuctionBtn">Start Auction</button>
     <h3>WebSocket Events:</h3>
     <div id="messages"></div>
     <script>
+      const API_URL = "https://gepltest.aagaming.in/api/category";
+      const AUTH_TOKEN = "f117b37f398cde3c9d19e50a356a335693c10be9"; // Replace with actual token
+      const AUTO_REFRESH_INTERVAL = 20; // seconds
+      let selectedPlayer = null;
+      let countdown = AUTO_REFRESH_INTERVAL;
+
       const socket = new WebSocket('wss://websocketgepl.aagaming.in/ws/bidding_room/auction_room?origin=wss://websocketgepl.aagaming.in');
 
-      socket.onopen = function(event) {
-        console.log('WebSocket connected');
-        logMessage({
-          type: 'system',
-          message: 'WebSocket connected'
-        });
-      };
-
-      socket.onmessage = function(event) {
-        console.log('Message from server:', event.data);
+      socket.onopen = () => logMessage({
+        type: 'system',
+        message: 'WebSocket connected'
+      });
+      socket.onmessage = event => {
         try {
           const data = JSON.parse(event.data);
           logMessage(data);
@@ -75,50 +128,118 @@
           });
         }
       };
+      socket.onerror = () => logMessage({
+        type: 'error',
+        message: 'WebSocket encountered an error'
+      });
+      socket.onclose = () => logMessage({
+        type: 'system',
+        message: 'WebSocket connection closed'
+      });
 
-      socket.onerror = function(event) {
-        console.error('WebSocket error:', event);
-        logMessage({
-          type: 'error',
-          message: 'WebSocket encountered an error'
-        });
-      };
-
-      socket.onclose = function(event) {
-        console.log('WebSocket closed');
-        logMessage({
-          type: 'system',
-          message: 'WebSocket connection closed'
-        });
-      };
-
-      function startAuction() {
+      async function fetchPlayers(manual = false) {
         const category = document.getElementById("category").value;
-        sendWebSocketMessage('start', category);
+        const playersTable = document.getElementById("playersTable").getElementsByTagName("tbody")[0];
+        const startAuctionBtn = document.getElementById("startAuctionBtn");
+
+        if (!category) {
+          playersTable.innerHTML = '<tr><td colspan="3">Select a category first.</td></tr>';
+          startAuctionBtn.disabled = true;
+          selectedPlayer = null;
+          return;
+        }
+
+        if (manual) {
+          playersTable.innerHTML = '<tr><td colspan="3">Loading players...</td></tr>';
+          startAuctionBtn.disabled = true;
+          selectedPlayer = null;
+        }
+
+        try {
+          const response = await fetch(`${API_URL}?category=${category}`, {
+            method: "GET",
+            headers: {
+              "Authorization": `Token ${AUTH_TOKEN}`,
+              "Content-Type": "application/json"
+            }
+          });
+
+          if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
+
+          const players = await response.json();
+          playersTable.innerHTML = "";
+
+          if (players.length === 0) {
+            playersTable.innerHTML = '<tr><td colspan="3">No players found in this category.</td></tr>';
+            return;
+          }
+
+          players.forEach(player => {
+            const row = playersTable.insertRow();
+            row.innerHTML = `<td>${player.name}</td><td>${player.is_player_sold}</td><td>${player.is_player_auctioned}</td>`;
+            row.dataset.playerId = player.id;
+            row.dataset.playerName = player.name;
+
+            if (selectedPlayer && selectedPlayer.id === player.id) {
+              row.classList.add("selected");
+              startAuctionBtn.disabled = false;
+            }
+
+            row.onclick = function() {
+              selectPlayer(this);
+            };
+          });
+
+          if (selectedPlayer && !players.some(p => p.id == selectedPlayer.id)) {
+            selectedPlayer = null;
+            startAuctionBtn.disabled = true;
+          }
+
+        } catch (error) {
+          console.error('Error fetching players:', error);
+          playersTable.innerHTML = '<tr><td colspan="3">Failed to load players.</td></tr>';
+        }
       }
 
-      function sendWebSocketMessage(action, category = null) {
-        let message;
-        if (action === 'start') {
-          message = {
-            "action": "START_AUCTION",
-            "category": category
-          };
-        } else if (action === 'next') {
-          message = {
-            "action": "get_next_player"
-          };
+      function selectPlayer(row) {
+        document.querySelectorAll("#playersTable tbody tr").forEach(r => r.classList.remove("selected"));
+        row.classList.add("selected");
+
+        selectedPlayer = {
+          id: row.dataset.playerId,
+          name: row.dataset.playerName
+        };
+
+        document.getElementById("startAuctionBtn").disabled = false;
+      }
+
+      function startAuction() {
+        if (!selectedPlayer) {
+          alert("Please select a player!");
+          return;
         }
+
+        const message = {
+          "action": "START_PLAYER_AUCTION",
+          "player_id": selectedPlayer.id
+        };
+        const message_2 = {
+          "action": "get_next_player"
+        };
 
         if (socket.readyState === WebSocket.OPEN) {
           socket.send(JSON.stringify(message));
-          console.log('Sent:', message);
           logMessage({
             type: 'sent',
             message: message
           });
+
+          socket.send(JSON.stringify(message_2));
+          logMessage({
+            type: 'sent',
+            message: message_2
+          });
         } else {
-          console.error('WebSocket is not open');
           logMessage({
             type: 'error',
             message: 'WebSocket is not open'
@@ -141,8 +262,19 @@
 
         messageElement.innerHTML = formattedMessage;
         messagesDiv.appendChild(messageElement);
-        messagesDiv.scrollTop = messagesDiv.scrollHeight; // Auto-scroll to the latest message
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
       }
+
+      // Auto-refresh logic
+      setInterval(() => {
+        countdown--;
+        document.getElementById("timer").innerText = countdown;
+        if (countdown <= 0) {
+          countdown = AUTO_REFRESH_INTERVAL;
+          const category = document.getElementById("category").value;
+          if (category) fetchPlayers(false);
+        }
+      }, 1000);
     </script>
   </body>
 </html>

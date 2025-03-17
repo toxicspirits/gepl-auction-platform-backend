@@ -34,7 +34,7 @@ urlpatterns = [
     # ...
     path(
         "auction/manage/",
-        TemplateView.as_view(template_name="pages/auction-panel.html"),
+        TemplateView.as_view(template_name="pages/auction-start.html"),
         name="auction-manage",
     ),
     re_path(r"^api/users/?$", views.UserTypeView.as_view()),
