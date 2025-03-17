@@ -227,6 +227,8 @@ class AuctionConsumer(AsyncWebsocketConsumer):
             self.channel_layer.player_queue = await sync_to_async(create_response)(
                 player_list,
             )
+            self.channel_layer.last_bid = 0
+            self.channel_layer.highest_bid = None
 
         elif action == "get_next_player":
             await self.send_next_player()
