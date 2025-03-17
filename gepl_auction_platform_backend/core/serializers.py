@@ -20,6 +20,8 @@ class PlayerSerializer(serializers.ModelSerializer):
             "base_price",
             "is_player_sold",
             "team",
+            "is_player_auctioned",
+            "rank",
         ]
 
 
