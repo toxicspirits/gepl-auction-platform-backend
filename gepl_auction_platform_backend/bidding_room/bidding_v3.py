@@ -284,10 +284,14 @@ class AuctionConsumer(AsyncWebsocketConsumer):
                 await self.restart_bid_timer(18, sell=True)
 
             else:
+                title = None
+                description = None
                 if current_budget < bid_amount:
-                    msg = "Insufficient funds to place bid."
+                    title = "Bid Rejected - LOW BALANCE"
+                    description = "Insufficient funds to place bid."
                 if not bid_amount > highest_bid["bid_amount"]:
-                    msg = "Bid too low. Place bid greater than current bid."
+                    title = "Bid Rejected - BID TOO LOW"
+                    description = "Place bid greater than current bid."
                 await self.channel_layer.group_send(
                     self.room_group_name,
                     {
@@ -295,7 +299,8 @@ class AuctionConsumer(AsyncWebsocketConsumer):
                         "bidder": bidder,
                         "remaining_budget": bidder_budgets.get(bidder),
                         "bid_amount": bid_amount,
-                        "msg": msg,
+                        "title": title,
+                        "description": description,
                     },
                 )
 
