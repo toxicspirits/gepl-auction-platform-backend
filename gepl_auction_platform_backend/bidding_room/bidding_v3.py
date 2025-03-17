@@ -20,6 +20,7 @@ def update_player_obj(player_id, bid, team_id):
         is_player_sold=True,
         team_id=team_id,
         shadow_base_price=bid,
+        is_player_auctioned=True,
     )
 
 
