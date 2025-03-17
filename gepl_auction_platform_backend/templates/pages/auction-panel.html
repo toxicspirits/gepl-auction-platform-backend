@@ -97,11 +97,11 @@
     <h3>WebSocket Events:</h3>
     <div id="messages"></div>
     <script>
-      const API_URL = "http://0.0.0.0:8000/api/category";
+      const API_URL = "http://65.2.69.144:8000/api/category";
       const AUTH_TOKEN = "f117b37f398cde3c9d19e50a356a335693c10be9"; // Replace with actual token
       let selectedPlayer = null; // Store the selected player
 
-      const socket = new WebSocket('ws://0.0.0.0:8000/ws/bidding_room/auction_room?origin=ws://0.0.0.0:8000');
+      const socket = new WebSocket('wss://websocketgepl.aagaming.in/ws/bidding_room/auction_room?origin=wss://websocketgepl.aagaming.in');
 
       socket.onopen = function(event) {
         console.log('WebSocket connected');
