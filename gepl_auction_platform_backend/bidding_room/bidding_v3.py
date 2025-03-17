@@ -15,11 +15,18 @@ def create_response(player_list):
     return list(player_list)
 
 
-def update_player_obj(player_id, bid, team_id):
+def update_sold_player_obj(player_id, bid, team_id):
     Players.objects.filter(id=player_id).update(
         is_player_sold=True,
         team_id=team_id,
         shadow_base_price=bid,
+        is_player_auctioned=True,
+    )
+
+
+def update_unsold_player_obj(player_id):
+    Players.objects.filter(id=player_id).update(
+        is_player_sold=False,
         is_player_auctioned=True,
     )
 
@@ -395,7 +402,7 @@ class AuctionConsumer(AsyncWebsocketConsumer):
             user_obj = await User.objects.aget(id=highest_bid["bidder"])
             team_obj = await Teams.objects.aget(owner=user_obj.id)
 
-            await sync_to_async(update_player_obj)(
+            await sync_to_async(update_sold_player_obj)(
                 current_player["id"],
                 highest_bid["bid_amount"],
                 team_obj.id,
@@ -417,6 +424,9 @@ class AuctionConsumer(AsyncWebsocketConsumer):
             )
         elif current_player:
             self.channel_layer.bid_number = 0
+            await sync_to_async(update_unsold_player_obj)(
+                current_player["id"],
+            )
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
