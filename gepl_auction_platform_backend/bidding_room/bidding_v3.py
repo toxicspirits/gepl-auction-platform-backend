@@ -346,7 +346,7 @@ class AuctionConsumer(AsyncWebsocketConsumer):
                 },
             )
             self.channel_layer.bid_number = self.channel_layer.bid_number + 1
-            await self.restart_bid_timer(20, sell=False)
+            await self.restart_bid_timer(17, sell=False)
         else:
             await self.send(text_data=json.dumps({"type": "auction_complete"}))
 
@@ -371,7 +371,7 @@ class AuctionConsumer(AsyncWebsocketConsumer):
                 },
             )
             self.channel_layer.bid_number = self.channel_layer.bid_number + 1
-            await self.restart_bid_timer(20, sell=False)
+            await self.restart_bid_timer(17, sell=False)
         else:
             await self.send(text_data=json.dumps({"type": "auction_complete"}))
 
