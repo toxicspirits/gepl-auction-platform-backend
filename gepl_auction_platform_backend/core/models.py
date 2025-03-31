@@ -60,7 +60,7 @@ class Players(models.Model):
     base_price = models.IntegerField(default=0)
     shadow_base_price = models.IntegerField(default=0)
     is_player_auctioned = models.BooleanField(default=False)
-    rank = models.IntegerField(default=0)
+    rank = models.CharField()
     is_player_sold = models.BooleanField(default=False)
     team = models.ForeignKey(Teams, on_delete=models.CASCADE, null=True, blank=True)
     profile_picture = models.URLField(
