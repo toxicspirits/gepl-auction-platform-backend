@@ -251,11 +251,13 @@ class AuctionConsumer(AsyncWebsocketConsumer):
             highest_bid = self.channel_layer.highest_bid
             current_budget = await Teams.objects.aget(owner=bidder)
             current_budget = current_budget.budget
+            override_vals = data.get("override_vals", False)
 
             if (
                 current_player
                 and current_player.get("name")
                 and current_budget >= bid_amount > self.channel_layer.last_bid
+                and override_vals
             ):
                 bid_increase = bid_amount - (
                     highest_bid["bid_amount"] if highest_bid else 0
