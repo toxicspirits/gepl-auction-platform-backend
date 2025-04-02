@@ -257,7 +257,7 @@ class AuctionConsumer(AsyncWebsocketConsumer):
                 current_player
                 and current_player.get("name")
                 and current_budget >= bid_amount > self.channel_layer.last_bid
-                and from_client is False
+                and from_client is True
             ):
                 bid_increase = bid_amount - (
                     highest_bid["bid_amount"] if highest_bid else 0
