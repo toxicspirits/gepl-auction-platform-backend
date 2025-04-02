@@ -249,6 +249,8 @@ class AuctionConsumer(AsyncWebsocketConsumer):
             current_player = self.channel_layer.current_player
             current_category = self.channel_layer.current_player.get("category")
             bid_number = self.channel_layer.bid_number
+            bid_number = bid_number - 1
+            self.channel_layer.bid_number = bid_number
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
