@@ -72,7 +72,6 @@
   </head>
   <body>
     <h2>Player Auction System</h2>
-    <!-- Category Selection -->
     <label for="category">Select Category:</label>
     <select id="category" onchange="fetchPlayers(true)">
       <option value="">--Select a Category--</option>
@@ -84,7 +83,6 @@
     <span id="refresh-timer">(Next auto-refresh in <span id="timer">60</span>s)</span>
     <br />
     <br />
-    <!-- Players Table -->
     <table id="playersTable">
       <thead>
         <tr>
@@ -106,11 +104,11 @@
     <div id="messages"></div>
     <script>
       const API_URL = "https://gepltest.aagaming.in/api/category";
-      const AUTH_TOKEN = "f117b37f398cde3c9d19e50a356a335693c10be9"; // Replace with actual token
-      const AUTO_REFRESH_INTERVAL = 60; // seconds
+      const AUTH_TOKEN = "f117b37f398cde3c9d19e50a356a335693c10be9";
+      const AUTO_REFRESH_INTERVAL = 20;
       let selectedPlayer = null;
       let countdown = AUTO_REFRESH_INTERVAL;
-      let lastBidEvent = null; // Stores the last place_bid event
+      let lastBid = null; // Stores the last bid
 
       const socket = new WebSocket('wss://websocketgepl.aagaming.in/ws/bidding_room/auction_room?origin=wss://websocketgepl.aagaming.in');
 
@@ -118,18 +116,20 @@
         type: 'system',
         message: 'WebSocket connected'
       });
-
       socket.onmessage = event => {
         try {
           const data = JSON.parse(event.data);
           logMessage(data);
-
-          // Store last place_bid event
-          if (data.action === "place_bid") {
-            lastBidEvent = data;
+          // Store the last bid if a "place_bid" event is received
+          if (data.type === "new_bid") {
+            lastBid = {
+              action: "place_bid",
+              bid_amount: data.bid_amount,
+              bidder: data.bidder,
+              from_client: false
+            };
             document.getElementById("replayBidBtn").disabled = false;
           }
-
         } catch (e) {
           logMessage({
             type: 'error',
@@ -138,7 +138,6 @@
           });
         }
       };
-
       socket.onerror = () => logMessage({
         type: 'error',
         message: 'WebSocket encountered an error'
@@ -231,8 +230,11 @@
         }
 
         const message = {
-          action: "START_PLAYER_AUCTION",
-          player_id: selectedPlayer.id
+          "action": "START_PLAYER_AUCTION",
+          "player_id": selectedPlayer.id
+        };
+        const message_2 = {
+          "action": "get_next_player"
         };
         if (socket.readyState === WebSocket.OPEN) {
           socket.send(JSON.stringify(message));
@@ -240,22 +242,47 @@
             type: 'sent',
             message: message
           });
+
+          socket.send(JSON.stringify(message_2));
+          logMessage({
+            type: 'sent',
+            message: message_2
+          });
+        } else {
+          logMessage({
+            type: 'error',
+            message: 'WebSocket is not open'
+          });
         }
       }
 
       function replayLastBid() {
-        if (!lastBidEvent) {
-          alert("No bid event to replay!");
+        if (!lastBid) {
+          alert("No bid to replay!");
           return;
         }
 
         if (socket.readyState === WebSocket.OPEN) {
-          socket.send(JSON.stringify(lastBidEvent));
+          socket.send(JSON.stringify(lastBid));
           logMessage({
             type: 'sent',
-            message: lastBidEvent
+            message: lastBid
+          });
+        } else {
+          logMessage({
+            type: 'error',
+            message: 'WebSocket is not open'
           });
         }
+      }
+
+      function logMessage(data) {
+        const messagesDiv = document.getElementById("messages");
+        const messageElement = document.createElement("div");
+        messageElement.classList.add("message");
+        messageElement.innerHTML = `<strong>${data.type.toUpperCase()}:</strong> <pre>${JSON.stringify(data.message || data, null, 2)}</pre>`;
+        messagesDiv.appendChild(messageElement);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
       }
     </script>
   </body>
