@@ -243,6 +243,26 @@ class AuctionConsumer(AsyncWebsocketConsumer):
         elif action == "get_last_player":
             await self.send_last_player()
 
+        elif action == "replay_last_bid":
+            bid_amount = data.get("bid_amount")
+            bidder = int(data.get("bidder"))
+            current_player = self.channel_layer.current_player
+            current_category = self.channel_layer.current_player.get("category")
+            bid_number = self.channel_layer.bid_number
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    "type": "new_bid",
+                    "bid_amount": bid_amount,
+                    "bidder": bidder,
+                    "player": current_player["name"],
+                    "player_id": current_player["id"],
+                    "next_bid": self.channel_layer.bids[current_category][bid_number],
+                },
+            )
+            await self.send_budget_update()
+            await self.restart_bid_timer(17, sell=True)
+
         elif action == "place_bid":
             bid_amount = data.get("bid_amount")
             bidder = int(data.get("bidder"))
@@ -251,13 +271,11 @@ class AuctionConsumer(AsyncWebsocketConsumer):
             highest_bid = self.channel_layer.highest_bid
             current_budget = await Teams.objects.aget(owner=bidder)
             current_budget = current_budget.budget
-            from_client = data.get("from_client", True)
 
             if (
                 current_player
                 and current_player.get("name")
                 and current_budget >= bid_amount > self.channel_layer.last_bid
-                and from_client is True
             ):
                 bid_increase = bid_amount - (
                     highest_bid["bid_amount"] if highest_bid else 0
@@ -289,25 +307,6 @@ class AuctionConsumer(AsyncWebsocketConsumer):
                     },
                 )
                 self.channel_layer.bid_number += 1
-                await self.send_budget_update()
-                await self.restart_bid_timer(17, sell=True)
-
-            elif from_client is False:
-                current_category = self.channel_layer.current_player.get("category")
-                bid_number = self.channel_layer.bid_number
-                await self.channel_layer.group_send(
-                    self.room_group_name,
-                    {
-                        "type": "new_bid",
-                        "bid_amount": bid_amount,
-                        "bidder": bidder,
-                        "player": current_player["name"],
-                        "player_id": current_player["id"],
-                        "next_bid": self.channel_layer.bids[current_category][
-                            bid_number
-                        ],
-                    },
-                )
                 await self.send_budget_update()
                 await self.restart_bid_timer(17, sell=True)
 

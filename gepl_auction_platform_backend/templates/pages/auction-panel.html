@@ -123,10 +123,9 @@
           // Store the last bid if a "place_bid" event is received
           if (data.type === "new_bid") {
             lastBid = {
-              action: "place_bid",
+              action: "replay_last_bid",
               bid_amount: data.bid_amount,
               bidder: data.bidder,
-              from_client: false
             };
             document.getElementById("replayBidBtn").disabled = false;
           }
